@@ -76,6 +76,8 @@ if __name__ == "__main__":
             print("last_sax_word           : {}".format(response.last_sax_word))
             print("forecast_sax_letter     : {}".format(response.forecast_sax_letter))
             print("position_in_sax_interval: {}".format(round(response.position_in_sax_interval, 2)))
+            print("series length           : {}".format(len(response.series)))
+            print("words length            : {}".format(len(response.words)))
         else:
             print("Invalid method!")
             exit(1)

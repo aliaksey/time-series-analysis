@@ -124,7 +124,7 @@ class Forecast:
                 os.remove(csv_file)
             else:
                 log.error("Error: Invalid Link.")
-                return result_x, result_y, last_sax_word
+                return None, None, result_x, result_y, last_sax_word
         elif self.source_type == "financial":
             ts_data = self._get_asset_data()
             if "Close" in ts_data:
@@ -133,7 +133,7 @@ class Forecast:
                 close_tag = "close"
             else:
                 log.error("Error: Couldn't find Close data.")
-                return result_x, result_y, last_sax_word
+                return None, None, result_x, result_y, last_sax_word
 
             ts_data["input"] = ts_data[close_tag]
             sax_ret = sax_via_window(ts_data["input"].values,
@@ -144,7 +144,7 @@ class Forecast:
                                      z_threshold=0.01)
         else:
             log.error("Invalid 'source_type'!")
-            return result_x, result_y, last_sax_word
+            return None, None, result_x, result_y, last_sax_word
 
         if sax_ret:
             my_sax = dict()
@@ -173,7 +173,7 @@ class Forecast:
         else:
             log.error("Not enough data!")
 
-        return result_x, result_y, last_sax_word
+        return ts_data["input"], sax_ret, result_x, result_y, last_sax_word
 
     def forecast(self):
 
@@ -189,12 +189,14 @@ class Forecast:
                                          step + alpha_to_num_shift,
                                          step + alpha_to_num_step]
 
-        x, y, last_sax_word = self._prepare_data(alpha_to_num)
+        df, sax_ret, x, y, last_sax_word = self._prepare_data(alpha_to_num)
 
         response = {
             "last_sax_word": "Fail",
             "forecast_sax_letter": "Fail",
-            "position_in_sax_interval": -1
+            "position_in_sax_interval": -1,
+            "series": [],
+            "words": []
         }
 
         # Trying to optimize settings for training.
@@ -261,6 +263,14 @@ class Forecast:
             response["last_sax_word"] = last_sax_word
             response["forecast_sax_letter"] = forecast_sax_letter
             response["position_in_sax_interval"] = position_in_sax_interval
+            response["series"] = [p for p in df]
+            ordered_words = []
+            for i in range(len(df)):
+                for k, v in sax_ret.items():
+                    if i in v:
+                        ordered_words.append(k)
+                        break
+            response["words"] = ordered_words
         else:
             log.error("X and/or Y with no length: {} and {}".format(len(x), len(y)))
         return response

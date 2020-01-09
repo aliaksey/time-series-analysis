@@ -17,6 +17,8 @@ message Output {
     string last_sax_word = 1;
     string forecast_sax_letter = 2;
     float position_in_sax_interval = 3;
+    repeated float series = 4;
+    repeated string words = 5;
 }
 
 service Forecast {

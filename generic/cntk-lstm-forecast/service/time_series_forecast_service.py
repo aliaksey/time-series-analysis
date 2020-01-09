@@ -92,6 +92,8 @@ class ForecastServicer(grpc_bt_grpc.ForecastServicer):
             self.response.last_sax_word = tmp_response["last_sax_word"].encode("utf-8")
             self.response.forecast_sax_letter = tmp_response["forecast_sax_letter"].encode("utf-8")
             self.response.position_in_sax_interval = tmp_response["position_in_sax_interval"]
+            self.response.series = tmp_response["series"]
+            self.response.words = tmp_response["words"]
 
             log.debug("forecast({},{},{},{})={},{},{}".format(self.window_len,
                                                               self.word_len,

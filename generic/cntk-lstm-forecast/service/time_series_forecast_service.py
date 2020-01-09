@@ -76,9 +76,6 @@ class ForecastServicer(grpc_bt_grpc.ForecastServicer):
             self.start_date = request.start_date
             self.end_date = request.end_date
 
-            # To respond we need to create a Output() object (from .proto file)
-            self.response = Output()
-
             fc = Forecast(self.window_len,
                           self.word_len,
                           self.alphabet_size,
@@ -89,11 +86,12 @@ class ForecastServicer(grpc_bt_grpc.ForecastServicer):
                           self.end_date)
 
             tmp_response = fc.forecast()
-            self.response.last_sax_word = tmp_response["last_sax_word"].encode("utf-8")
-            self.response.forecast_sax_letter = tmp_response["forecast_sax_letter"].encode("utf-8")
-            self.response.position_in_sax_interval = tmp_response["position_in_sax_interval"]
-            self.response.series = tmp_response["series"]
-            self.response.words = tmp_response["words"]
+            # To respond we need to create a Output() object (from .proto file)
+            self.response = Output(last_sax_word=tmp_response["last_sax_word"].encode("utf-8"),
+                                   forecast_sax_letter=tmp_response["forecast_sax_letter"].encode("utf-8"),
+                                   position_in_sax_interval=tmp_response["position_in_sax_interval"],
+                                   series=tmp_response["series"],
+                                   words=tmp_response["words"])
 
             log.debug("forecast({},{},{},{})={},{},{}".format(self.window_len,
                                                               self.word_len,

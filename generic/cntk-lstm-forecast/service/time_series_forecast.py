@@ -263,7 +263,10 @@ class Forecast:
             response["last_sax_word"] = last_sax_word
             response["forecast_sax_letter"] = forecast_sax_letter
             response["position_in_sax_interval"] = position_in_sax_interval
-            response["series"] = [p for p in df]
+            if self.source_type == "financial":
+                response["series"] = [round(p, 2) for p in df]
+            else:
+                response["series"] = [p for p in df]
             ordered_words = []
             for i in range(len(df)):
                 for k, v in sax_ret.items():

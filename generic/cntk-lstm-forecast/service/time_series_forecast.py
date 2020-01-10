@@ -144,7 +144,8 @@ class Forecast:
                                      nr_strategy="none",
                                      z_threshold=0.01)
         elif self.source_type == "series":
-            sax_ret = sax_via_window(np.array(self.data),
+            ts_data = {"input": np.array(self.data)}
+            sax_ret = sax_via_window(ts_data["input"],
                                      self.window_len,
                                      self.word_len,
                                      alphabet_size=self.alphabet_size,

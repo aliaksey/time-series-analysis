@@ -21,14 +21,15 @@ log = logging.getLogger("time_series_forecast")
 
 class Forecast:
 
-    def __init__(self, window_len, word_len, alphabet_size, source_type, source, contract, start_date, end_date):
+    def __init__(self, window_len, word_len, alphabet_size, source_type, source, data, contract, start_date, end_date):
         self.window_len = window_len
         self.word_len = word_len
         self.alphabet_size = alphabet_size
 
-        # CSV or Financial
+        # Series, CSV or Financial
         self.source_type = source_type
         self.source = source
+        self.data = data
 
         # Financial data
         self.contract = contract
@@ -137,6 +138,13 @@ class Forecast:
 
             ts_data["input"] = ts_data[close_tag]
             sax_ret = sax_via_window(ts_data["input"].values,
+                                     self.window_len,
+                                     self.word_len,
+                                     alphabet_size=self.alphabet_size,
+                                     nr_strategy="none",
+                                     z_threshold=0.01)
+        elif self.source_type == "series":
+            sax_ret = sax_via_window(np.array(self.data),
                                      self.window_len,
                                      self.word_len,
                                      alphabet_size=self.alphabet_size,

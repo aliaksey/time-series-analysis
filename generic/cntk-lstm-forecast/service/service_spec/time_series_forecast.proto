@@ -7,10 +7,11 @@ message Input {
 
     string source_type = 4;
     string source = 5;
+    repeated float data = 6;
 
-    string contract = 6;
-    string start_date = 7;
-    string end_date = 8;
+    string contract = 7;
+    string start_date = 8;
+    string end_date = 9;
 }
 
 message Output {

@@ -28,9 +28,10 @@ class ForecastServicer(grpc_bt_grpc.ForecastServicer):
         self.word_len = -1
         self.alphabet_size = -1
 
-        # CSV or Financial
+        # Series, CSV or Financial
         self.source_type = "financial"
         self.source = "yahoo"
+        self.data = []
 
         # Financial data
         self.contract = ""
@@ -71,6 +72,7 @@ class ForecastServicer(grpc_bt_grpc.ForecastServicer):
 
             self.source_type = request.source_type
             self.source = request.source
+            self.data = request.data
 
             self.contract = request.contract
             self.start_date = request.start_date
@@ -81,6 +83,7 @@ class ForecastServicer(grpc_bt_grpc.ForecastServicer):
                           self.alphabet_size,
                           self.source_type,
                           self.source,
+                          self.data,
                           self.contract,
                           self.start_date,
                           self.end_date)

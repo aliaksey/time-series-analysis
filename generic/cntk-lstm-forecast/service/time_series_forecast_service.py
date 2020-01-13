@@ -23,7 +23,7 @@ GPU_QUEUE_ID = -1
 
 
 def multi_forecast(fc, return_dict):
-    return_dict = fc.forecast()
+    return_dict["response"] = fc.forecast()
     return
 
 
@@ -104,12 +104,16 @@ class ForecastServicer(grpc_bt_grpc.ForecastServicer):
 
             print("return_dict.values:", return_dict.values())
 
+            response = return_dict.get("response", None)
+            if not response:
+                raise Exception("No Response!")
+
             # To respond we need to create a Output() object (from .proto file)
-            self.response = Output(last_sax_word=return_dict["last_sax_word"].encode("utf-8"),
-                                   forecast_sax_letter=return_dict["forecast_sax_letter"].encode("utf-8"),
-                                   position_in_sax_interval=return_dict["position_in_sax_interval"],
-                                   series=return_dict["series"],
-                                   words=return_dict["words"])
+            self.response = Output(last_sax_word=response["last_sax_word"].encode("utf-8"),
+                                   forecast_sax_letter=response["forecast_sax_letter"].encode("utf-8"),
+                                   position_in_sax_interval=response["position_in_sax_interval"],
+                                   series=response["series"],
+                                   words=response["words"])
 
             log.debug("forecast({},{},{},{})={},{},{}".format(self.window_len,
                                                               self.word_len,

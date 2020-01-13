@@ -19,6 +19,11 @@ logging.basicConfig(level=10, format="%(asctime)s - [%(levelname)8s] - %(name)s 
 log = logging.getLogger("time_series_forecast")
 
 
+def multi_forecast(fc, return_dict):
+    return_dict = fc.forecast()
+    return
+
+
 class Forecast:
 
     def __init__(self, window_len, word_len, alphabet_size, source_type, source, data, contract, start_date, end_date):
@@ -35,8 +40,6 @@ class Forecast:
         self.contract = contract
         self.start_date = start_date
         self.end_date = end_date
-
-        self.return_dict = dict()
 
     @staticmethod
     def _next_batch(x, y, ds, batch_size):
@@ -202,7 +205,7 @@ class Forecast:
 
         df, sax_ret, x, y, last_sax_word = self._prepare_data(alpha_to_num)
 
-        self.return_dict = {
+        return_dict = {
             "last_sax_word": "Fail",
             "forecast_sax_letter": "Fail",
             "position_in_sax_interval": -1,
@@ -220,7 +223,7 @@ class Forecast:
         epochs = 100
         if len(x["train"]) > 200000:
             log.error("Configured data set too large (max: 200k): {}".format(len(x["train"])))
-            return self.return_dict
+            return return_dict
         if len(x["train"]) < 100000:
             epochs = 250
         if len(x["train"]) < 40000:
@@ -271,19 +274,20 @@ class Forecast:
             log.debug("position_in_sax_interval: {}".format(position_in_sax_interval))
             log.debug("============================================")
 
-            self.return_dict["last_sax_word"] = last_sax_word
-            self.return_dict["forecast_sax_letter"] = forecast_sax_letter
-            self.return_dict["position_in_sax_interval"] = position_in_sax_interval
+            return_dict["last_sax_word"] = last_sax_word
+            return_dict["forecast_sax_letter"] = forecast_sax_letter
+            return_dict["position_in_sax_interval"] = position_in_sax_interval
             if self.source_type == "financial":
-                self.return_dict["series"] = [round(p, 2) for p in df]
+                return_dict["series"] = [round(p, 2) for p in df]
             else:
-                self.return_dict["series"] = [p for p in df]
+                return_dict["series"] = [p for p in df]
             ordered_words = []
             for i in range(len(df)):
                 for k, v in sax_ret.items():
                     if i in v:
                         ordered_words.append(k)
                         break
-            self.return_dict["words"] = ordered_words
+            return_dict["words"] = ordered_words
         else:
             log.error("X and/or Y with no length: {} and {}".format(len(x), len(y)))
+        return return_dict

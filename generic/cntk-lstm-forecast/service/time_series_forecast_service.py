@@ -91,20 +91,20 @@ class ForecastServicer(grpc_bt_grpc.ForecastServicer):
                           self.end_date)
 
             manager = multiprocessing.Manager()
-            return_dict = manager.dict()
+            # return_dict = manager.dict()
 
-            p = multiprocessing.Process(target=fc.forecast, args=(return_dict,))
+            p = multiprocessing.Process(target=fc.forecast)
             p.start()
             p.join()
 
-            print("return_dict:", return_dict)
+            print("return_dict:", fc.return_dict)
 
             # To respond we need to create a Output() object (from .proto file)
-            self.response = Output(last_sax_word=return_dict["last_sax_word"].encode("utf-8"),
-                                   forecast_sax_letter=return_dict["forecast_sax_letter"].encode("utf-8"),
-                                   position_in_sax_interval=return_dict["position_in_sax_interval"],
-                                   series=return_dict["series"],
-                                   words=return_dict["words"])
+            self.response = Output(last_sax_word=fc.return_dict["last_sax_word"].encode("utf-8"),
+                                   forecast_sax_letter=fc.return_dict["forecast_sax_letter"].encode("utf-8"),
+                                   position_in_sax_interval=fc.return_dict["position_in_sax_interval"],
+                                   series=fc.return_dict["series"],
+                                   words=fc.return_dict["words"])
 
             log.debug("forecast({},{},{},{})={},{},{}".format(self.window_len,
                                                               self.word_len,

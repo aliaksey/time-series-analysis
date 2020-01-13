@@ -22,7 +22,7 @@ GPU_QUEUE = []
 GPU_QUEUE_ID = -1
 
 
-def multi_forecast(fc, return_dict):
+def multiproc_forecast(fc, return_dict):
     return_dict["response"] = fc.forecast()
     return
 
@@ -98,11 +98,9 @@ class ForecastServicer(grpc_bt_grpc.ForecastServicer):
             manager = multiprocessing.Manager()
             return_dict = manager.dict()
 
-            p = multiprocessing.Process(target=multi_forecast, args=(fc, return_dict))
+            p = multiprocessing.Process(target=multiproc_forecast, args=(fc, return_dict))
             p.start()
             p.join()
-
-            print("return_dict.values:", return_dict.values())
 
             response = return_dict.get("response", None)
             if not response:

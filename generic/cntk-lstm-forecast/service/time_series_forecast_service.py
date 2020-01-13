@@ -8,7 +8,7 @@ import concurrent.futures as futures
 import multiprocessing
 
 import service.common
-from service.time_series_forecast import Forecast, multi_forecast
+from service.time_series_forecast import Forecast
 
 # Importing the generated codes from buildproto.sh
 import service.service_spec.time_series_forecast_pb2_grpc as grpc_bt_grpc
@@ -20,6 +20,11 @@ log = logging.getLogger("time_series_forecast")
 GPU_DEVICE_BUSY = False
 GPU_QUEUE = []
 GPU_QUEUE_ID = -1
+
+
+def multi_forecast(fc, return_dict):
+    return_dict = fc.forecast()
+    return
 
 
 # Create a class to be added to the gRPC server

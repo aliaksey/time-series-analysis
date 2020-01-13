@@ -19,11 +19,6 @@ logging.basicConfig(level=10, format="%(asctime)s - [%(levelname)8s] - %(name)s 
 log = logging.getLogger("time_series_forecast")
 
 
-def multi_forecast(fc, return_dict):
-    return_dict = fc.forecast()
-    return
-
-
 class Forecast:
 
     def __init__(self, window_len, word_len, alphabet_size, source_type, source, data, contract, start_date, end_date):

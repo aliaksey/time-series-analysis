@@ -5,6 +5,8 @@ import logging
 import grpc
 import concurrent.futures as futures
 
+import multiprocessing
+
 import service.common
 from service.time_series_forecast import Forecast
 
@@ -88,13 +90,21 @@ class ForecastServicer(grpc_bt_grpc.ForecastServicer):
                           self.start_date,
                           self.end_date)
 
-            tmp_response = fc.forecast()
+            manager = multiprocessing.Manager()
+            return_dict = manager.dict()
+
+            p = multiprocessing.Process(target=fc.forecast, args=(return_dict,))
+            p.start()
+            p.join()
+
+            print("return_dict:", return_dict)
+
             # To respond we need to create a Output() object (from .proto file)
-            self.response = Output(last_sax_word=tmp_response["last_sax_word"].encode("utf-8"),
-                                   forecast_sax_letter=tmp_response["forecast_sax_letter"].encode("utf-8"),
-                                   position_in_sax_interval=tmp_response["position_in_sax_interval"],
-                                   series=tmp_response["series"],
-                                   words=tmp_response["words"])
+            self.response = Output(last_sax_word=return_dict["last_sax_word"].encode("utf-8"),
+                                   forecast_sax_letter=return_dict["forecast_sax_letter"].encode("utf-8"),
+                                   position_in_sax_interval=return_dict["position_in_sax_interval"],
+                                   series=return_dict["series"],
+                                   words=return_dict["words"])
 
             log.debug("forecast({},{},{},{})={},{},{}".format(self.window_len,
                                                               self.word_len,

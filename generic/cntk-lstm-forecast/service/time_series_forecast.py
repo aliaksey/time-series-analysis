@@ -184,7 +184,7 @@ class Forecast:
 
         return ts_data["input"], sax_ret, result_x, result_y, last_sax_word
 
-    def forecast(self):
+    def forecast(self, return_dict):
 
         # Mapping each letter to number between 0-1
         alpha_to_num_step = float(1 / self.alphabet_size)
@@ -200,7 +200,7 @@ class Forecast:
 
         df, sax_ret, x, y, last_sax_word = self._prepare_data(alpha_to_num)
 
-        response = {
+        return_dict = {
             "last_sax_word": "Fail",
             "forecast_sax_letter": "Fail",
             "position_in_sax_interval": -1,
@@ -218,7 +218,7 @@ class Forecast:
         epochs = 100
         if len(x["train"]) > 200000:
             log.error("Configured data set too large (max: 200k): {}".format(len(x["train"])))
-            return response
+            return return_dict
         if len(x["train"]) < 100000:
             epochs = 250
         if len(x["train"]) < 40000:
@@ -269,20 +269,20 @@ class Forecast:
             log.debug("position_in_sax_interval: {}".format(position_in_sax_interval))
             log.debug("============================================")
 
-            response["last_sax_word"] = last_sax_word
-            response["forecast_sax_letter"] = forecast_sax_letter
-            response["position_in_sax_interval"] = position_in_sax_interval
+            return_dict["last_sax_word"] = last_sax_word
+            return_dict["forecast_sax_letter"] = forecast_sax_letter
+            return_dict["position_in_sax_interval"] = position_in_sax_interval
             if self.source_type == "financial":
-                response["series"] = [round(p, 2) for p in df]
+                return_dict["series"] = [round(p, 2) for p in df]
             else:
-                response["series"] = [p for p in df]
+                return_dict["series"] = [p for p in df]
             ordered_words = []
             for i in range(len(df)):
                 for k, v in sax_ret.items():
                     if i in v:
                         ordered_words.append(k)
                         break
-            response["words"] = ordered_words
+            return_dict["words"] = ordered_words
         else:
             log.error("X and/or Y with no length: {} and {}".format(len(x), len(y)))
-        return response
+        return return_dict
